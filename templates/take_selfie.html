@@ -1,0 +1,32 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="text-center">
+    <img class="mb-4" src="https://yk-website-images.s3.eu-west-1.amazonaws.com/LogoV4_TRANSPARENT.png" alt="" height="72">
+
+    <div id="yk-content">
+        <div id="status">
+            <h3>Please take a selfie</h3>
+        </div>
+        <form class="form" id="face-authentication-form" action="" method="POST">
+            {{ form.csrf_token }}
+            <video id="camera" width="640" height="480" style="max-width: 100%" playsinline></video>
+            <canvas id="output" width=640 height=480 style="display:none;"></canvas>
+            <div class="fixed-bottom">
+                <div class="row justify-content-around">
+                    <button id="take-selfie-button" type="submit" class="btn btn-info btn-wd">Take selfie</button>
+                </div>
+                <p class="mt-5 mb-3 text-muted">
+                    <a class="text-info" href="https://www.yoonik.me/terms-of-use/" target="_blank">Terms of Use</a> |
+                    <a class="text-info" href="https://www.yoonik.me/yoonik-privacy-policy/" target="_blank">Privacy Policy</a> |
+                    &copy;<script>document.write(new Date().getFullYear())</script><a class="text-info" href="https://www.yoonik.me/" target="_blank"> YooniK</a>
+                </p>
+            </div>
+
+        </form>
+    </div>
+
+
+</div>
+
+<script src="/static/js/app.js" type="text/javascript"></script>
+{% endblock content %}
