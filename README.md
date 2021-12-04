@@ -4,7 +4,7 @@ This example shows you how to use Flask to log in to your application with an Ok
 
 The login is achieved through the [authorization code flow](https://developer.okta.com/authentication-guide/implementing-authentication/auth-code), where the user is redirected to the Okta-Hosted login page. After the user authenticates, he is redirected back to the application with an access code that is then exchanged for an access token. Then he will perform a second-factor face authentication with YooniK.
 
-If the face authentication is successful, the user is logged in to the application.
+After a successful face authentication, the user is logged in to the application (the user is enrolled in YooniK APIs in the first face authentication).
 
 The source code of this example is based on the [Flask Sample Applications for Okta](https://github.com/okta/samples-python-flask) repository. 
 > Requires Python version 3.6.0 or higher.
@@ -15,16 +15,7 @@ Before running this sample, you will need the following:
 
 * An Okta Developer Account, you can sign up for one at https://developer.okta.com/signup/.
 * An Okta Application configured for Web mode. You can create one from the Okta Developer Console, and you can find instructions [here](https://developer.okta.com/authentication-guide/implementing-authentication/auth-code#1-setting-up-your-application).  When following the wizard, use the default properties.  They are designed to work with our sample applications.
-* An API token created by an administrative account within your Okta domain. See [Create an API token](https://developer.okta.com/docs/guides/create-an-api-token/overview/).
 * An YooniK account. If you do not already have one, you can signup [here](https://www.yoonik.me/register). To get a free trial please e-mail us to [support@yoonik.me](mailto:support@yoonik.me).
-
-### Extend Okta User Profile
-Create the following profile attribute in both the default Okta profile and the Web Application that you created earlier:
-* Data Type: string
-* Display Name: YooniK Face Authentication Status
-* Variable Name: yoonikAuthenticationStatus
-
->Note: Once you have created the profile attribute above, make sure it is mapped to the application profile as well if it was created under the default Okta profile.
 
 ## Running This Example
 
@@ -51,7 +42,6 @@ You now need to gather the following information from the Okta Developer Console
 
 - **Client ID** and **Client Secret** - These can be found on the "General" tab of the Web application that you created earlier in the Okta Developer Console.
 - **Issuer** - This is the URL of the authorization server that will perform authentication.  All Developer Accounts have a "default" authorization server.  The issuer is a combination of your Org URL (found in the upper right of the console home page) and `/oauth2/default`. For example, `https://dev-1234.oktapreview.com/oauth2/default`.
-- **Okta API Token** - The Okta API token that you created earlier in the Okta Developer Console.
 
 Additionally, you need to gather the **YooniK API URL** and **YooniK API key** from your YooniK account dashboard.
 
@@ -66,8 +56,6 @@ Fill in the information that you gathered in the `client_secrets.json` file.
   "issuer": "https://{yourOktaDomain}/oauth2/default",
   "token_uri": "https://{yourOktaDomain}/oauth2/default/v1/token",
   "userinfo_uri": "https://{yourOktaDomain}/oauth2/default/v1/userinfo",
-  "users_uri": "https://{{yourOktaDomain}}/api/v1/users",
-  "api_token": "{{yourOktaApiToken}}",
   "yoonik_authentication_api_url": "{{yoonikApiUrl}}",
   "yoonik_authentication_api_key": "{{yoonikApiKey}}"
 }

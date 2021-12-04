@@ -179,25 +179,19 @@ def callback():
         else:
             message = f'Ups! {parse_response_error(response.text)}'
 
-    # Update user profile
-    userprofile_response = requests.post(config["users_uri"] + f'/{userinfo_response["sub"]}',
-                                         headers={'Authorization': f'SSWS {config["api_token"]}'},
-                                         json={'profile': {'yoonikAuthenticationStatus': status}}).json()
-
     # Login user (if face authentication was successful)
     if status == 'SUCCESS' or status == 'NEW_USER':
         continue_url = url_for("profile")
         unique_id = userinfo_response["sub"]
         user_email = userinfo_response["email"]
         user_name = userinfo_response["given_name"]
-        yoonik_authentication_status = userprofile_response["profile"]["yoonikAuthenticationStatus"]
 
         user = User(
-            id_=unique_id, name=user_name, email=user_email, yk_authentication_status=yoonik_authentication_status
+            id_=unique_id, name=user_name, email=user_email
         )
 
         if not User.get(unique_id):
-            User.create(unique_id, user_name, user_email, yoonik_authentication_status)
+            User.create(unique_id, user_name, user_email)
 
         login_user(user)
 
