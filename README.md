@@ -76,3 +76,7 @@ You can log in with the same account that you created when signing up for your D
 **Note:** If you are currently using your Developer Console, you already have a Single Sign-On (SSO) session for your Org. You will be automatically logged into your application as the same user that is using the Developer Console. You may want to use an incognito tab to test the flow from a blank slate.
 
 > In case you run into any issues to start the webcam for face authentication, you may have to run this server in **https** mode or change the host from **localhost** to **127.0.0.1** (both here and in your Okta Web Application configuration).
+
+## Contact & Support
+
+For more information, support and trial licenses please [contact us](mailto:support@yoonik.me) or join us at our [discord community](https://discord.gg/SqHVQUFNtN).
