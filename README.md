@@ -4,6 +4,8 @@ This example shows you how to use Flask to log in to your application with an Ok
 
 The login is achieved through the [authorization code flow](https://developer.okta.com/authentication-guide/implementing-authentication/auth-code), where the user is redirected to the Okta-Hosted login page. After the user authenticates, he is redirected back to the application with an access code that is then exchanged for an access token. Then he will perform a second-factor face authentication with YooniK.
 
+If the face authentication is successful, the user is logged in to the application.
+
 The source code of this example is based on the [Flask Sample Applications for Okta](https://github.com/okta/samples-python-flask) repository. 
 > Requires Python version 3.6.0 or higher.
 

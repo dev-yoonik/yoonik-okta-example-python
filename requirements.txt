@@ -4,5 +4,5 @@ flask-cors==3.0.9
 pyOpenSSL==19.0.0
 Flask-Login==0.4.1
 okta-jwt-verifier==0.2.0
-beautifulsoup4
-flask-wtf
+beautifulsoup4==4.10.0
+flask-wtf==0.15.1
