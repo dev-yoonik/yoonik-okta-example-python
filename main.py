@@ -2,7 +2,7 @@ import requests
 import json
 
 from bs4 import BeautifulSoup
-from flask import Flask, render_template, redirect, request, url_for, jsonify
+from flask import Flask, render_template, redirect, request, url_for, jsonify, flash
 from flask_login import (
     LoginManager,
     current_user,
@@ -205,6 +205,22 @@ def callback():
 @login_required
 def logout():
     logout_user()
+    return redirect(url_for("home"))
+
+
+@app.route("/delete-yoonik-account")
+@login_required
+def delete_yoonik_account():
+    response = requests.delete(
+        config["yoonik_authentication_api_url"],
+        headers={'x-api-key': config["yoonik_authentication_api_key"]},
+        json={'user_id': current_user.id}
+    )
+    if response.ok:
+        flash("User successfully deleted from YooniK APIs!", "success")
+    else:
+        flash("Error deleting user.", "danger")
+
     return redirect(url_for("home"))
 
 
