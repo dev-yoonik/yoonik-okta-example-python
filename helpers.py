@@ -19,7 +19,7 @@ def is_access_token_valid(token, config):
     query_params = requests.compat.urlencode(query_params)
 
     r = requests.post(
-        config["token_validation_uri"],
+        config.token_validation_uri,
         headers=headers,
         data=query_params,
         auth=(config["client_id"], config["client_secret"])
@@ -91,7 +91,6 @@ class Configuration:
         """
         config = self.__read_file(config_file)
         self.__load_configuration(config)
-        print(1)
 
     def __load_configuration(self, config: dict):
         """
