@@ -1,6 +1,3 @@
-import requests
-import json
-
 from flask import Flask, render_template, redirect, request, url_for, jsonify, flash
 from flask_login import (
     LoginManager,
@@ -10,10 +7,12 @@ from flask_login import (
     logout_user,
 )
 
-from helpers import is_access_token_valid, is_id_token_valid, config, allowed_base64_image, \
-    parse_response_error, parse_response_status
-from user import User
-from forms import FaceAuthenticationForm
+from utils.helpers import allowed_base64_image, parse_response_error, parse_response_status
+from services import Yoonik
+from services.providers import OktaProvider, OneLoginProvider
+from services.user import User
+from utils.forms import FaceAuthenticationForm
+from config import Configuration
 
 
 app = Flask(__name__)
@@ -22,9 +21,8 @@ app.config.update({'SECRET_KEY': 'SomethingNotEntirelySecret'})
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-
-APP_STATE = 'ApplicationState'
-NONCE = 'SampleNonce'
+global yoonik
+global provider
 
 
 @login_manager.user_loader
@@ -34,27 +32,12 @@ def load_user(user_id):
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html", provider=provider.name)
 
 
 @app.route("/login")
 def login():
-    # get request params
-    query_params = {'client_id': config["client_id"],
-                    'redirect_uri': config["redirect_uri"],
-                    'scope': "openid email profile",
-                    'state': APP_STATE,
-                    'nonce': NONCE,
-                    'response_type': 'code',
-                    'response_mode': 'query'}
-
-    # build request_uri
-    request_uri = "{base_url}?{query_params}".format(
-        base_url=config["auth_uri"],
-        query_params=requests.compat.urlencode(query_params)
-    )
-
-    return redirect(request_uri)
+    return redirect(provider.get_login_uri())
 
 
 @app.route("/profile")
@@ -72,37 +55,18 @@ def callback():
     if not form.validate_on_submit():
         return "Error in selfie submission", 400
 
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     code = request.args.get("code")
     if not code:
         return "The code was not returned or is not accessible", 403
-    query_params = {'grant_type': 'authorization_code',
-                    'code': code,
-                    'redirect_uri': request.base_url
-                    }
-    query_params = requests.compat.urlencode(query_params)
-    exchange = requests.post(
-        config["token_uri"],
-        headers=headers,
-        data=query_params,
-        auth=(config["client_id"], config["client_secret"]),
-    ).json()
 
-    # Get tokens and validate
-    if not exchange.get("token_type"):
+    token = provider.get_token(code, request.base_url)
+    if token is None:
         return "Unsupported token type. Should be 'Bearer'.", 403
-    access_token = exchange["access_token"]
-    id_token = exchange["id_token"]
 
-    if not is_access_token_valid(access_token, config["issuer"]):
-        return "Access token is invalid", 403
+    if not provider.is_token_valid(token):
+        return "Token validation was unsuccessful .", 403
 
-    if not is_id_token_valid(id_token, config["issuer"], config["client_id"], NONCE):
-        return "ID token is invalid", 403
-
-    # Authorization flow successful, get userinfo
-    userinfo_response = requests.get(config["userinfo_uri"],
-                                     headers={'Authorization': f'Bearer {access_token}'}).json()
+    user_info = provider.get_user_info(token)
 
     # Perform Face Authentication with YooniK API
     status = 'FAILED'
@@ -111,39 +75,22 @@ def callback():
     continue_url = url_for("login")
 
     if allowed_base64_image(form.user_selfie.data):
-        yoonik_request_data = {
-            'user_id': userinfo_response["sub"],
-            'user_photo': form.user_selfie.data.split('base64,')[1],
-            'create_if_new': True
-        }
-        response = requests.post(
-            config["yoonik_authentication_api_url"],
-            headers={'x-api-key': config["yoonik_authentication_api_key"]},
-            json=yoonik_request_data
-        )
-        if response.ok:
-            result = json.loads(response.text)
+        authenticate, result = yoonik.authenticate(user_info["sub"], form.user_selfie.data.split('base64,')[1], True)
+        if authenticate:
             status = result['status']
-            message_class = 'text-success' if status == 'SUCCESS' or status == 'NEW_USER' else 'text-danger'
             message = parse_response_status(status)
+
+            if status == 'SUCCESS' or status == 'NEW_USER':
+                message_class = 'text-success'
+                continue_url = url_for("profile")
+
+                user = User.get(user_info["sub"])
+                if not user:
+                    User.create(user_info["sub"], user_info["given_name"], user_info["email"])
+                    user = User.get(user_info["sub"])
+                login_user(user)
         else:
-            message = f'Ups! {parse_response_error(response.text)}'
-
-    # Login user (if face authentication was successful)
-    if status == 'SUCCESS' or status == 'NEW_USER':
-        continue_url = url_for("profile")
-        unique_id = userinfo_response["sub"]
-        user_email = userinfo_response["email"]
-        user_name = userinfo_response["given_name"]
-
-        user = User(
-            id_=unique_id, name=user_name, email=user_email
-        )
-
-        if not User.get(unique_id):
-            User.create(unique_id, user_name, user_email)
-
-        login_user(user)
+            message = f'Ups! {parse_response_error(result)}'
 
     return jsonify(
         status=status,
@@ -161,18 +108,33 @@ def logout():
 @app.route("/delete-yoonik-account")
 @login_required
 def delete_yoonik_account():
-    response = requests.delete(
-        config["yoonik_authentication_api_url"],
-        headers={'x-api-key': config["yoonik_authentication_api_key"]},
-        json={'user_id': current_user.id}
-    )
-    if response.ok:
+    deleted = yoonik.delete_account(current_user.id)
+    if deleted:
         flash("User successfully deleted from YooniK APIs!", "success")
+        return redirect(url_for("logout"))
     else:
         flash("Error deleting user.", "danger")
 
     return redirect(url_for("home"))
 
 
+def instantiate_services():
+    global yoonik, provider
+
+    config = Configuration()
+    yoonik = Yoonik(config.yk_authentication_uri, config.yk_authentication_key)
+
+    provider_name = config.provider_name.lower()
+    if provider_name == "okta":
+        provider = OktaProvider(config)
+
+    elif provider_name == "onelogin":
+        provider = OneLoginProvider(config)
+
+    else:
+        raise Exception("Unsupported provider.")
+
+
 if __name__ == '__main__':
+    instantiate_services()
     app.run(host="localhost", port=8080)
