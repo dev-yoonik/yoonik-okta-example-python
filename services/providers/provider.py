@@ -1,8 +1,10 @@
+""" Provider Base """
 from abc import ABC, abstractmethod
 import requests
 
 
 class Provider(ABC):
+    """ Provider base class """
 
     def __init__(self, config):
         self._name = config.provider_name
@@ -18,18 +20,35 @@ class Provider(ABC):
 
     @abstractmethod
     def is_token_valid(self, token) -> bool:
+        """
+        Performs the token validity.
+        :param token: access token
+        :return:
+        """
         ...
 
     @abstractmethod
-    def get_login_uri(self) -> str:
+    def get_login_uri(self, oidc_scopes) -> str:
+        """
+        Builds the initializer uri of the authentication code flow.
+        :param oidc_scopes: list of specified the oidc scopes
+        :return: uri
+        """
         ...
 
     def get_token(self, code, redirect_uri):
+        """
+        Requests an access token from the providers token endpoint.
+        :param code: the code received from the provider
+        :param redirect_uri: the redirect uri in which
+        :return:
+        """
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        query_params = {'grant_type': 'authorization_code',
-                        'code': code,
-                        'redirect_uri': redirect_uri
-                        }
+        query_params = {
+            'grant_type': 'authorization_code',
+            'code': code,
+            'redirect_uri': redirect_uri
+        }
         query_params = requests.compat.urlencode(query_params)
         response = requests.post(
             self._token_uri,
@@ -45,6 +64,11 @@ class Provider(ABC):
         return response["access_token"]
 
     def get_user_info(self, token):
+        """
+        Requests the user info from the providers user info endpoint.
+        :param token:
+        :return:
+        """
         user_info = requests.get(
             self._user_info_uri,
             headers={'Authorization': f'Bearer {token}'})
@@ -54,4 +78,7 @@ class Provider(ABC):
 
     @property
     def name(self):
+        """
+        :return: name of the provider
+        """
         return self._name

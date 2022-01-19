@@ -48,6 +48,6 @@ Thumbs.db
 *.mov
 *.wmv
 
-# Secrets
-client_secrets.json
+# Configuration file
+config.json
 

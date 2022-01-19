@@ -1,11 +1,14 @@
+""" OneLogin OIDC Provider """
 import requests
 from services.providers import Provider
 
 
 class OneLoginProvider(Provider):
+    """ OneLogin OIDC Provider Class """
 
     def __init__(self, config):
-        super(OneLoginProvider, self).__init__(config)
+        """ Initializer """
+        super().__init__(config)
         self._token_validation_uri = config.token_validation_uri
 
     def get_login_uri(self, oidc_scopes=None):
@@ -20,10 +23,7 @@ class OneLoginProvider(Provider):
             'response_type': 'code',
         }
         # build request_uri
-        request_uri = "{base_url}?{query_params}".format(
-            base_url=self._auth_uri,
-            query_params=requests.compat.urlencode(query_params)
-        )
+        request_uri = f"{self._auth_uri}?{requests.compat.urlencode(query_params)}"
         return request_uri
 
     def is_token_valid(self, token):

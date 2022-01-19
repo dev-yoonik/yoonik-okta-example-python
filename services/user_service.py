@@ -1,3 +1,4 @@
+""" User Repository and Class """
 from flask_login import UserMixin
 
 
@@ -5,7 +6,7 @@ from flask_login import UserMixin
 USERS_DB = {}
 
 
-class User(UserMixin):
+class UserService(UserMixin):
 
     """Custom User class."""
 
@@ -21,8 +22,20 @@ class User(UserMixin):
 
     @staticmethod
     def get(user_id):
+        """
+        Returns the user with the specified user identifier.
+        :param user_id: user identifier
+        :return: user
+        """
         return USERS_DB.get(user_id)
 
     @staticmethod
     def create(user_id, name, email):
-        USERS_DB[user_id] = User(user_id, name, email)
+        """
+        Create a new user with the specified
+        :param user_id: user identifier
+        :param name: user name
+        :param email: user email
+        :return:
+        """
+        USERS_DB[user_id] = UserService(user_id, name, email)

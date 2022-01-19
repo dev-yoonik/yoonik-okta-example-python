@@ -1,3 +1,5 @@
+""" Flask + OIDC Hosted Login + YooniK Face Authentication Example """
+
 from flask import Flask, render_template, redirect, request, url_for, jsonify, flash
 from flask_login import (
     LoginManager,
@@ -7,11 +9,10 @@ from flask_login import (
     logout_user,
 )
 
-from utils.helpers import allowed_base64_image, parse_response_error, parse_response_status
-from services import Yoonik
+from utils import allowed_base64_image, parse_response_error, parse_response_status, FaceAuthenticationForm
+from services import YoonikService
 from services.providers import OktaProvider, OneLoginProvider
-from services.user import User
-from utils.forms import FaceAuthenticationForm
+from services.user_service import UserService as Users
 from config import Configuration
 
 
@@ -21,23 +22,23 @@ app.config.update({'SECRET_KEY': 'SomethingNotEntirelySecret'})
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-global yoonik
-global provider
+global YOONIK
+global PROVIDER
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return Users.get(user_id)
 
 
 @app.route("/")
 def home():
-    return render_template("home.html", provider=provider.name)
+    return render_template("home.html", provider=PROVIDER.name)
 
 
 @app.route("/login")
 def login():
-    return redirect(provider.get_login_uri())
+    return redirect(PROVIDER.get_login_uri())
 
 
 @app.route("/profile")
@@ -59,14 +60,14 @@ def callback():
     if not code:
         return "The code was not returned or is not accessible", 403
 
-    token = provider.get_token(code, request.base_url)
+    token = PROVIDER.get_token(code, request.base_url)
     if token is None:
         return "Unsupported token type. Should be 'Bearer'.", 403
 
-    if not provider.is_token_valid(token):
+    if not PROVIDER.is_token_valid(token):
         return "Token validation was unsuccessful .", 403
 
-    user_info = provider.get_user_info(token)
+    user_info = PROVIDER.get_user_info(token)
 
     # Perform Face Authentication with YooniK API
     status = 'FAILED'
@@ -75,7 +76,9 @@ def callback():
     continue_url = url_for("login")
 
     if allowed_base64_image(form.user_selfie.data):
-        authenticate, result = yoonik.authenticate(user_info["sub"], form.user_selfie.data.split('base64,')[1], True)
+        authenticate, result = YOONIK.authenticate(user_info["sub"],
+                                                   form.user_selfie.data.split('base64,')[1],
+                                                   True)
         if authenticate:
             status = result['status']
             message = parse_response_status(status)
@@ -84,10 +87,10 @@ def callback():
                 message_class = 'text-success'
                 continue_url = url_for("profile")
 
-                user = User.get(user_info["sub"])
+                user = Users.get(user_info["sub"])
                 if not user:
-                    User.create(user_info["sub"], user_info["given_name"], user_info["email"])
-                    user = User.get(user_info["sub"])
+                    Users.create(user_info["sub"], user_info["given_name"], user_info["email"])
+                    user = Users.get(user_info["sub"])
                 login_user(user)
         else:
             message = f'Ups! {parse_response_error(result)}'
@@ -108,28 +111,27 @@ def logout():
 @app.route("/delete-yoonik-account")
 @login_required
 def delete_yoonik_account():
-    deleted = yoonik.delete_account(current_user.id)
+    deleted = YOONIK.delete_account(current_user.id)
     if deleted:
         flash("User successfully deleted from YooniK APIs!", "success")
         return redirect(url_for("logout"))
-    else:
-        flash("Error deleting user.", "danger")
 
+    flash("Error deleting user.", "danger")
     return redirect(url_for("home"))
 
 
 def instantiate_services():
-    global yoonik, provider
+    global YOONIK, PROVIDER
 
     config = Configuration()
-    yoonik = Yoonik(config.yk_authentication_uri, config.yk_authentication_key)
+    YOONIK = YoonikService(config.yk_authentication_uri, config.yk_authentication_key)
 
     provider_name = config.provider_name.lower()
     if provider_name == "okta":
-        provider = OktaProvider(config)
+        PROVIDER = OktaProvider(config)
 
     elif provider_name == "onelogin":
-        provider = OneLoginProvider(config)
+        PROVIDER = OneLoginProvider(config)
 
     else:
         raise Exception("Unsupported provider.")

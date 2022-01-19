@@ -1,18 +1,26 @@
+""" Okta OIDC Provider """
 import asyncio
 import requests
-from .provider import Provider
+
 from okta_jwt_verifier import IDTokenVerifier
 from okta_jwt_verifier import AccessTokenVerifier
 
+from .provider import Provider
+
 
 class OktaProvider(Provider):
-
+    """ Okta OIDC Provider Class """
     def __init__(self, config, app_state='ApplicationState', nonce='SampleNonce'):
-        super(OktaProvider, self).__init__(config)
+        super().__init__(config)
         self.__app_state = app_state
         self.__nonce = nonce
 
     async def __is_access_token_valid(self, token):
+        """
+        Verifies the validity of the specified access token.
+        :param token: access token to validate
+        :return: True if valid, False otherwise.
+        """
         jwt_verifier = AccessTokenVerifier(issuer=self._issuer_uri, audience='api://default')
         try:
             await jwt_verifier.verify(token)
@@ -21,6 +29,12 @@ class OktaProvider(Provider):
             return False
 
     async def __is_id_token_valid(self, token, nonce):
+        """
+        Verifies the validity of the id token within the access token.
+        :param token: access token
+        :param nonce: nonce used
+        :return: True if valid, False otherwise.
+        """
         jwt_verifier = IDTokenVerifier(issuer=self._issuer_uri,
                                        client_id=self._client_id,
                                        audience='api://default')
@@ -30,21 +44,23 @@ class OktaProvider(Provider):
         except Exception:
             return False
 
-    def get_login_uri(self) -> str:
+    def get_login_uri(self, oidc_scopes=None) -> str:
+        if oidc_scopes is None:
+            oidc_scopes = self._default_scopes
+
         # get request params
-        query_params = {'client_id': self._client_id,
-                        'redirect_uri': self._redirect_uri,
-                        'scope': "openid email profile",
-                        'state': self.__app_state,
-                        'nonce': self.__nonce,
-                        'response_type': 'code',
-                        'response_mode': 'query'}
+        query_params = {
+            'client_id': self._client_id,
+            'redirect_uri': self._redirect_uri,
+            'scope': ' '.join(oidc_scopes),
+            'state': self.__app_state,
+            'nonce': self.__nonce,
+            'response_type': 'code',
+            'response_mode': 'query'
+        }
 
         # build request_uri
-        request_uri = "{base_url}?{query_params}".format(
-            base_url=self._auth_uri,
-            query_params=requests.compat.urlencode(query_params)
-        )
+        request_uri = f"{self._auth_uri}?{requests.compat.urlencode(query_params)}"
 
         return request_uri
 
@@ -67,4 +83,3 @@ class OktaProvider(Provider):
             return False
         finally:
             loop.close()
-
