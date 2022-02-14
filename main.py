@@ -144,11 +144,11 @@ def logout():
 def delete_yoonik_account():
     success = face_authentication.request_account_deletion(user_id=current_user.id)
     if success:
-        flash("User successfully deleted from YooniK APIs!", "success")
+        flash("YooniK account successfully deleted.", "success")
     else:
         flash("Error deleting user.", "danger")
 
-    return redirect(url_for("home"))
+    return redirect(url_for("logout"))
 
 
 if __name__ == '__main__':
