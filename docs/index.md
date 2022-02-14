@@ -59,7 +59,7 @@ The following steps cover the configuration and deployment of a sample applicati
     
     *   **Client ID** and **Client Secret** - These can be found on the **Sign On** tab of the YooniK app integration that you installed earlier in the Okta Admin Console.
         
-    *   **Open ID Connect URLs** - These are the **authorization_endpoint**, **token_endpoint** and **userinfo_endpoint** for your Okta domain that can be found by clicking on **OpenID Provider Metadata** under the **Sign On** tab.
+    *   **Open ID Connect URLs** - These are the **authorization_endpoint**, **token_endpoint** and **userinfo_endpoint** for your Okta domain that can be found by clicking on **OpenID Provider Metadata** link under the **Sign On** tab.
         
 6.  Additionally, you need to gather the **YooniK API URL** and **YooniK API key** from your YooniK account dashboard (or by contacting [support@yoonik.me](mailto:support@yoonik.me)).
     

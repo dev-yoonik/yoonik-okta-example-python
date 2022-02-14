@@ -13,8 +13,8 @@ The source code of this example is based on the [Flask Sample Applications for O
 
 Before running this sample, you will need the following:
 
-* An Okta Developer Account, you can sign up for one at https://developer.okta.com/signup/.
-* An Okta Application configured for Web mode. You can create one from the Okta Developer Console, and you can find instructions [here](https://developer.okta.com/authentication-guide/implementing-authentication/auth-code#1-setting-up-your-application).  When following the wizard, use the default properties.  They are designed to work with our sample applications.
+* An Okta Account.
+* YooniK app integration installed in your Okta instance (can be installed from the **App Catalog**).
 * An YooniK account. If you do not already have one, you can signup [here](https://www.yoonik.me/register). To get a free trial please e-mail us to [support@yoonik.me](mailto:support@yoonik.me).
 
 ## Running This Example
@@ -38,10 +38,10 @@ Copy the [`client_secrets.json.dist`](client_secrets.json.dist) to `client_secre
 cp client_secrets.json.dist client_secrets.json
 ```
 
-You now need to gather the following information from the Okta Developer Console:
+You now need to gather the following information from the Okta Admin Console:
 
-- **Client ID** and **Client Secret** - These can be found on the "General" tab of the Web application that you created earlier in the Okta Developer Console.
-- **Issuer** - This is the URL of the authorization server that will perform authentication.  All Developer Accounts have a "default" authorization server.  The issuer is a combination of your Org URL (found in the upper right of the console home page) and `/oauth2/default`. For example, `https://dev-1234.oktapreview.com/oauth2/default`.
+* **Client ID** and **Client Secret** - These can be found on the **Sign On** tab of the YooniK app integration that you installed earlier in the Okta Admin Console. 
+* **Open ID Connect URLs** - These are the **authorization_endpoint**, **token_endpoint** and **userinfo_endpoint** for your Okta domain that can be found by clicking on **OpenID Provider Metadata** link under the **Sign On** tab.
 
 Additionally, you need to gather the **YooniK API URL** and **YooniK API key** from your YooniK account dashboard.
 
@@ -49,13 +49,12 @@ Fill in the information that you gathered in the `client_secrets.json` file.
 
 ```json
 {
-  "auth_uri": "https://{yourOktaDomain}/oauth2/default/v1/authorize",
-  "client_id": "{yourClientId}",
-  "client_secret": "{yourClientSecret}",
-  "redirect_uri": "http://localhost:8080/authorization-code/callback",
-  "issuer": "https://{yourOktaDomain}/oauth2/default",
-  "token_uri": "https://{yourOktaDomain}/oauth2/default/v1/token",
-  "userinfo_uri": "https://{yourOktaDomain}/oauth2/default/v1/userinfo",
+  "authorization_endpoint": "https://{{yourOktaDomain}}/oauth2/v1/authorize",
+  "client_id": "{{yourClientId}}",
+  "client_secret": "{{yourClientSecret}}",
+  "redirect_uri": "http://127.0.0.1:8080/authorization-code/callback",
+  "token_endpoint": "https://{{yourOktaDomain}}/oauth2/v1/token",
+  "userinfo_endpoint": "https://{{yourOktaDomain}}/oauth2/v1/userinfo",
   "yoonik_authentication_api_url": "{{yoonikApiUrl}}",
   "yoonik_authentication_api_key": "{{yoonikApiKey}}"
 }
