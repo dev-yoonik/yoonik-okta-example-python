@@ -5,4 +5,4 @@ pyOpenSSL==19.0.0
 Flask-Login==0.4.1
 beautifulsoup4==4.10.0
 flask-wtf==0.15.1
-yk-utils==0.1.4
+yk-utils==1.1.0

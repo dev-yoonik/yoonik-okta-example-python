@@ -1,5 +1,4 @@
 import requests
-import json
 
 from flask import Flask, render_template, redirect, request, url_for, jsonify, flash
 from flask_login import (
@@ -9,14 +8,14 @@ from flask_login import (
     login_user,
     logout_user,
 )
-from yk_utils.files import load_json_config
+from yk_utils.files import read_json_from_file
 from yk_utils.apis import FaceAuthentication
 
 from user import User
 from forms import FaceAuthenticationForm
 
 
-config = load_json_config(filename='./client_secrets.json')
+config = read_json_from_file(filename='./client_secrets.json')
 face_authentication = FaceAuthentication(
     api_url=config["yoonik_authentication_api_url"],
     api_key=config["yoonik_authentication_api_key"]
@@ -104,14 +103,14 @@ def callback():
                                      headers={'Authorization': f'Bearer {access_token}'}).json()
 
     # Perform Face Authentication with YooniK
-    face_authentication.request_face_authentication(
+    result = face_authentication.request_face_authentication(
         user_id=userinfo_response["sub"],
         user_photo=form.user_selfie.data
     )
 
     # Login user (if face authentication was successful)
     continue_url = url_for("login")
-    if face_authentication.status == 'SUCCESS' or face_authentication.status == 'NEW_USER':
+    if result.status in ('SUCCESS', 'NEW_USER'):
         continue_url = url_for("profile")
         unique_id = userinfo_response["sub"]
         user_email = userinfo_response["email"]
@@ -127,9 +126,9 @@ def callback():
         login_user(user)
 
     return jsonify(
-        status=face_authentication.status,
-        html=render_template("result.html", message_class=face_authentication.message_class,
-                             message=face_authentication.message, continue_url=continue_url))
+        status=result.status,
+        html=render_template("result.html", message_class=result.message_class,
+                             message=result.message, continue_url=continue_url))
 
 
 @app.route("/logout", methods=["GET", "POST"])
