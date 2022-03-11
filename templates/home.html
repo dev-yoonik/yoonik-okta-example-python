@@ -1,22 +1,26 @@
 {% extends "template.html" %}
 
 {% block content %}
-<h2>{{ provider }} Hosted Login in Flask + YooniK Face Authentication</h2>
+<h2>{{ provider }} Login + YooniK Face Authentication</h2>
 
 {% if current_user.is_authenticated %}
 <div>
-    <p>Welcome back!</p>
-    <p>You have successfully authenticated against your {{ provider }} org, and you have been redirected back to this application and performed a second-factor authentication with YooniK by just using your face!</p>
-    <p>Visit the <a href="{{ url_for('profile') }}">My Profile</a> page in this application to view the information
-        retrieved with your OAuth Access Token.</p>
+    <p><b>Welcome back!</b></p>
+    <p>You have successfully authenticated with your {{ provider }} account using YooniK Face Authentication as Second-Factor.</p>
+    <p>Visit the <a href="{{ url_for('profile') }}">My Profile</a> page to view the information retrieved with your OAuth Access Token.</p>
 </div>
 {% else %}
 <div>
     <p>Hello!</p>
     <p>If you're viewing this page then you have successfully configured and started this example server.</p>
-    <!-- todo maybe add YooniK documentation regarding implementation on Okta and Onelogin -->
-    <!--<p>This example shows you how to add the <a href="https://developer.okta.com/authentication-guide/implementing-authentication/auth-code.html">Authorization Code Flow</a> to your Flask application, along with a second-factor face authentication with <a href="https://www.yoonik.me" target="_blank">YooniK</a> APIs.</p>-->
-    <p>When you click the login button below, you will be redirected to the login page on your {{ provider }} org.  After you authenticate with {{ provider }}, you will be returned to this application and perform a second-factor authentication with YooniK.</p>
+    <p>Let's describe the steps:</p>
+    <ol>
+        <li>Click login</li>
+        <li>Perform your {{ provider }} login</li>
+        <li>Authenticate with YooniK.</li>
+    </ol>
+    <p>That's it! After this steps you will be logged in this app.</p>
+    <p><b>Note: an YooniK account will be created with your email. Once logged in if you choose, you may delete the account.</b></p>
 </div>
 
 <form method="get" action="login">

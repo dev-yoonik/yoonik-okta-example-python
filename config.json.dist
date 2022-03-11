@@ -1,20 +1,20 @@
 {
-  "oidc_base_uri": "{{yourOidcBaseUri}}",
-  "issuer_uri": "{{yourIssuerRelativeUri}}",
-  "auth_uri": "{{yourAuthRelativeUri}}",
-  "token_uri": "{{yourTokenRelativeUri}}",
-  "userinfo_uri": "{{yourUserInfoRelativeUri}}",
-  "token_validation_uri": null,
+  "oidc_base_url": "yourOidcBaseUrl",
+  "issuer_url": "yourIssuerUrl",
+  "auth_url": "yourAuthRelativeUrl",
+  "token_url": "yourTokenRelativeUrl",
+  "userinfo_url": "yourUserInfoRelativeUrl",
+  "token_validation_url": null,
 
-  "redirect_uri": "http://127.0.0.1:8080/authorization-code/callback",
+  "redirect_url": "http://127.0.0.1:8080/authorization-code/callback",
 
-  "client_id": "{{yourClientId}}",
-  "client_secret": "{{yourClientSecret}}",
+  "client_id": "yourClientId",
+  "client_secret": "yourClientSecret",
 
-  "yoonik_authentication_api_uri": "{{yoonikApiUrl}}",
-  "yoonik_authentication_api_key": "{{yoonikApiKey}}",
+  "yoonik_authentication_api_url": "yoonikApiUrl",
+  "yoonik_authentication_api_key": "yoonikApiKey",
 
-  "__oidc_base_uri_comment__": "Make sure the last character is a forward slash",
-  "__issuer_comment__": "If the issuer uri is the same as oidc base url, it can't be left blank",
-  "__token_validation_comment__": "The token validation uri. Currently used on OneLogin"
+  "__oidc_base_url_comment__": "Make sure the last character is a forward slash",
+  "__issuer_comment__": "It can be provided either an URL or a relative URL. If the issuer url is the same as oidc base url, it can't be left blank.",
+  "__token_validation_comment__": "The token validation url. Currently used on OneLogin"
 }
