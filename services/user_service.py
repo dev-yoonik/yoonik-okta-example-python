@@ -6,7 +6,7 @@ from flask_login import UserMixin
 USERS_DB = {}
 
 
-class UserService(UserMixin):
+class User(UserMixin):
 
     """Custom User class."""
 
@@ -21,7 +21,7 @@ class UserService(UserMixin):
                 'email': self.email}.items()
 
     @staticmethod
-    def get(user_id):
+    def get(user_id) -> 'User':
         """
         Returns the user with the specified user identifier.
         :param user_id: user identifier
@@ -32,10 +32,10 @@ class UserService(UserMixin):
     @staticmethod
     def create(user_id, name, email):
         """
-        Create a new user with the specified
+        Create a new user with the specified id, name and email
         :param user_id: user identifier
         :param name: user name
         :param email: user email
         :return:
         """
-        USERS_DB[user_id] = UserService(user_id, name, email)
+        USERS_DB[user_id] = User(user_id, name, email)

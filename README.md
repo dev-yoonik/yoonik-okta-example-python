@@ -1,6 +1,6 @@
 # OIDC Hosted Login + YooniK Face Authentication 
 
-## Supported OIDCs
+## Supported OIDCs Providers
 
 [OneLogin](https://www.onelogin.com/) and [Okta](https://www.okta.com/).
 
@@ -16,7 +16,7 @@ Steps on this application:
 3. User is redirected back to this application with an access code that is then exchanged for an access token. 
 4. Token is validated.
 5. User takes a selfie to perform a second-factor face authentication with YooniK.
-6. User is logged.
+6. User is logged in.
 
 The user is enrolled in YooniK APIs in the first face authentication.
 Once logged in the User is able to delete its YooniK account.
@@ -52,7 +52,7 @@ cp config.json.dist config.json
 
 ### Configuration
 
-[Okta](docs/okta.md) and [OneLogin](docs/onelogin.md) configuration are available in this repository in the `.\docs` folder.
+[Okta](docs/okta.md) and [OneLogin](docs/onelogin.md) configuration instructions are available in this repository in the `.\docs` folder.
 
 Once all is configured you can run the app.
 
@@ -69,7 +69,7 @@ If you see a home page that prompts you to log in, then things are working!
 
 ### Known issues
 
-> If you already have a Single Sign-On session to you provider, you may want to use your browser in incognito mode to test the flow from a blank slate. 
+> If you already have a Single Sign-On session with your OIDC provider, you may want to use your browser in incognito mode to test the flow from a blank slate. 
 
 > In case you run into any issues to start the webcam for face authentication, you may have to run this server in **https** mode or change the host from **localhost** to **127.0.0.1** (both in configuration file and in your Provider Application configuration).
 

@@ -12,7 +12,7 @@ from yk_utils.apis import FaceAuthentication
 from utils.config import Configuration
 from services.providers import OktaProvider, OneLoginProvider
 from utils.forms import FaceAuthenticationForm
-from services.user_service import UserService
+from services.user_service import User
 
 global YK_FACE_AUTHENTICATION, PROVIDER
 
@@ -25,12 +25,12 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return UserService.get(user_id)
+    return User.get(user_id)
 
 
 @app.route("/")
 def home():
-    return render_template("home.html", provider=PROVIDER.name)
+    return render_template("home.html", provider=config.provider_name)
 
 
 @app.route("/login")
@@ -48,7 +48,7 @@ def profile():
 def callback():
     if request.method == 'GET':
         if "error" and "error_description" in request.args:
-            return request.args["error_description"], 409
+            return str(request.args["error_description"]), 409
         return render_template("take_selfie.html", form=FaceAuthenticationForm())
 
     form = FaceAuthenticationForm()
@@ -59,11 +59,11 @@ def callback():
     if not code:
         return "The code was not returned or is not accessible", 403
 
-    token = PROVIDER.get_token(code, request.base_url)
+    token = PROVIDER.request_access_token(code, request.base_url)
     if token is None:
         return "Unsupported token type. Should be 'Bearer'.", 403
 
-    if not PROVIDER.is_token_valid(token):
+    if not PROVIDER.is_access_token_valid(token):
         return "Token validation was unsuccessful .", 403
 
     user_info = PROVIDER.get_user_info(token)
@@ -82,9 +82,9 @@ def callback():
         user_email = user_info["email"]
         user_name = user_info["given_name"]
 
-        if not UserService.get(unique_id):
-            UserService.create(unique_id, user_name, user_email)
-        user = UserService.get(unique_id)
+        if not User.get(unique_id):
+            User.create(unique_id, user_name, user_email)
+        user = User.get(unique_id)
 
         login_user(user)
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     YK_FACE_AUTHENTICATION = FaceAuthentication(config.yk_authentication_url,
                                                 config.yk_authentication_key)
 
-    provider_name = config.provider_name
+    provider_name = config.provider_name.lower()
     if provider_name == "okta":
         PROVIDER = OktaProvider(config)
     elif provider_name == "onelogin":

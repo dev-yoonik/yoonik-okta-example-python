@@ -67,7 +67,6 @@ In this JSON the following keys will be important, pay attention to its values.
 ```json
 {
   "authorization_endpoint": "https://your-subdomain.onelogin.com/oidc/2/auth",
-  "issuer": "https://your-subdomain.onelogin.com/oidc/2",
   "token_endpoint": "https://your-subdomain.onelogin.com/oidc/2/token",
   "userinfo_endpoint": "https://your-subdomain.onelogin.com/oidc/2/me",
   "introspection_endpoint": "https://your-subdomain.onelogin.com/oidc/2/token/introspection"
@@ -80,11 +79,9 @@ Open the `config.json` file.
 
 1. Set the **oidc_base_url** to the OIDC as a common base URL (similar to `https://your-subdomain.onelogin.com/oidc/2/`).
 
-2. The **issuer_url** can be left blank if it's same as the base URL.
+2. Set **auth_url** to the part following the base URL in `authorization_endpoint`.
 
-3. Set **auth_url** to the part following the base URL in `authorization_endpoint`.
-
-4. Set  **token_url** to the part following the base URL in `token_endpoint`.
+3. Set  **token_url** to the part following the base URL in `token_endpoint`.
 
 5. Set **userinfo_url** to the part following the base URL in `userinfo_endpoint`.
 
@@ -99,7 +96,6 @@ Your final result should look like this.
 ```json
 {
   "oidc_base_url": "https://your-subdomain.onelogin.com/oidc/2/",
-  "issuer_url": "",
   "auth_url": "auth",
   "token_url": "token",
   "userinfo_url": "me",

@@ -1,12 +1,14 @@
 """ Provider Base """
 from abc import ABC, abstractmethod
+from typing import List, Union
+from utils.config import Configuration
 import requests
 
 
 class Provider(ABC):
     """ Provider base class """
 
-    def __init__(self, config, default_scopes=None):
+    def __init__(self, config: Configuration, default_scopes: List[str] = None):
         """
         OIDC Provider class initializer
         :param config: instance of Configuration
@@ -17,36 +19,35 @@ class Provider(ABC):
         self._client_id = config.client_id
         self._client_secret = config.client_secret
         self._auth_url = config.auth_url
-        self._issuer_url = config.issuer_url
         self._token_url = config.token_url
         self._user_info_url = config.user_info_url
         self._redirect_url = config.redirect_url
         self._default_scopes = default_scopes
 
     @abstractmethod
-    def is_token_valid(self, token) -> bool:
+    def is_access_token_valid(self, token: str) -> bool:
         """
-        Performs the token validity.
+        Performs the access token validity.
         :param token: access token
         :return:
         """
         ...
 
     @abstractmethod
-    def get_login_url(self, oidc_scopes) -> str:
+    def get_login_url(self, oidc_scopes: List[str]) -> str:
         """
         Builds the initializer url of the authentication code flow.
-        :param oidc_scopes: list of specified the oidc scopes
+        :param oidc_scopes: list of oidc scopes
         :return: url
         """
         ...
 
-    def get_token(self, code, redirect_url):
+    def request_access_token(self, code: str, redirect_url: str) -> Union[str, None]:
         """
         Requests an access token from the providers token endpoint.
         :param code: the code received from the provider
-        :param redirect_url: the redirect url in which
-        :return:
+        :param redirect_url: the app redirect url registered in the OIDC provider
+        :return: access token
         """
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         query_params = {
@@ -68,10 +69,10 @@ class Provider(ABC):
 
         return response["access_token"]
 
-    def get_user_info(self, token):
+    def get_user_info(self, token: str) -> Union[dict, None]:
         """
         Requests the user info from the providers user info endpoint.
-        :param token:
+        :param token: access token
         :return:
         """
         user_info = requests.get(

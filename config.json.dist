@@ -1,6 +1,5 @@
 {
   "oidc_base_url": "yourOidcBaseUrl",
-  "issuer_url": "yourIssuerUrl",
   "auth_url": "yourAuthRelativeUrl",
   "token_url": "yourTokenRelativeUrl",
   "userinfo_url": "yourUserInfoRelativeUrl",
@@ -15,6 +14,5 @@
   "yoonik_authentication_api_key": "yoonikApiKey",
 
   "__oidc_base_url_comment__": "Make sure the last character is a forward slash",
-  "__issuer_comment__": "It can be provided either an URL or a relative URL. If the issuer url is the same as oidc base url, it can't be left blank.",
   "__token_validation_comment__": "The token validation url. Currently used on OneLogin"
 }

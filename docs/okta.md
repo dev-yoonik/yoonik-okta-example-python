@@ -2,57 +2,66 @@
 
 ## Overview
 
-This document is intended to be use with [YooniK Sample App](https://github.com/dev-yoonik/yoonik-okta-example-python), in which the app login is performed 
-using the Okta OIDC and YooniK second-factor facial authentication. Enhancing security and privacy while providing a friendly user experience.
+This integration guide configures a custom Web Application using the Okta Sign-in Widget and YooniK Face Authentication APIs to demonstrate how to add a second-factor authentication to Okta login flow, enhancing security and privacy while providing a seamless user experience.
+
+## Contents
+
+* Supported features
+* Requirements
+* Configuration steps
+* Notes
+
+## Supported features
+
+* Service Provider (SP)-Initiated Authentication (SSO) Flow - This authentication flow occurs when the user attempts to log in from YooniK application.
 
 ## Prerequisites
 
 This app integration has the following requirements:
 
-*   An Okta Developer Account, you can sign up for one at [https://developer.okta.com/signup/](https://developer.okta.com/signup/).
-    
-*   An YooniK account, you can sign up [here](https://www.yoonik.me/register). E-mail us [support@yoonik.me](mailto:support@yoonik.me) for a free trial license.
-    
-*   A [Python](https://www.python.org) developer environment.
-    
+* An Okta Account.
+* An YooniK account. If you do not already have one, you can signup [here](https://www.yoonik.me/register). To get a free trial license please e-mail us to [support@yoonik.me](mailto:support@yoonik.me).
+* A [Python](https://www.python.org) developer environment.
+
 
 ## Setting up Okta
 
-### Create an App Integration
+### Install the YooniK app integration in your Okta instance
 
-1. Sign in to your Okta developer account as a user with administrative privileges.
+1. Sign in to your organization's Okta Admin Console.
+
+2. In the Admin Console, go to  **Applications** > **Applications**. Click **Browse App Catalog** and search for **YooniK**, and then click **Add**.
     
-2. In the Admin Console, go to **Applications** > **Applications**.
+3. Enter an **Application Label** in General Settings. This is the name under which the YooniK app will appear in your Okta dashboard.
     
-3. Click **Create App Integration**.
-   1. Choose **OpenID Connect** in the **Sign-in method** section.
-   2. Choose **Web Application** as the **Application type** for your integration.
-4. Click **Next**.
+4. Click **Done**.
+
+5. In the **Sign On** tab, under the **Settings** section click **Edit** and fill the **Domain** field with the domain you will be using to deploy your custom Web Application (for testing, you can use the default localhost domain: http://127.0.0.1:8080).
+
+6. In the **Assignments** tab, assign the application to the desired users or groups.
+
+### Configure the Web Application
+
+1. You now need to gather the following information from the Okta Admin Console:
     
-5. In **General Settings**, enter a **name** for your integration and (optionally) upload a logo.
+    * **Client ID** and **Client Secret** - These can be found on the **Sign On** tab of the YooniK app integration that you installed earlier in the Okta Admin Console.
+        
+    * **Open ID Connect URLs** - These are the **authorization_endpoint**, **token_endpoint** and **userinfo_endpoint** for your Okta domain that can be found by clicking on **OpenID Provider Metadata** link under the **Sign On** tab.
+     
+2. Additionally, you need to gather the **YooniK API URL** and **YooniK API key** from your YooniK account dashboard (or by contacting [support@yoonik.me](mailto:support@yoonik.me)).
+    
 
-6. In **Grant type** confirm that the **Authorization Code** is selected.
-
-7. Set **Sign-in redirect URI** to `http://127.0.0.1:8080/authorization-code/callback`.
-
-8. Set **Sign-out redirect URI** to `http://127.0.0.1:8080`.
-
-9. In the **Assignments** tab for the app integration, assign the application to the desired users, groups or skip it.
-
-10. Click **Save**.
-
-> Have the **Client ID** and **Client Secret** in hand.
+> If you set a custom domain for this app in the **Sign On** tab in Okta Admin Console (different than http://127.0.0.1:8080), please update the **"redirect_uri"** in `config.json` accordingly.
 
 
 ### OIDC Well-Known Configuration
 
-To your base Okta domain append `/.well-known/openid-configuration` and go to the address. This contains the OIDC needed information for the next section.
+To your base Okta organization domain append `/.well-known/openid-configuration` and go to the address. This contains the OIDC needed information for the next section.
 
 In this JSON the following keys will be important, pay attention to its values. 
 
 ```json
 {
-  "issuer": "https://your-subdomain.okta.com",
   "authorization_endpoint": "https://your-subdomain.okta.com/oauth2/v1/authorize",
   "token_endpoint": "https://your-subdomain.okta.com/oauth2/v1/token",
   "userinfo_endpoint": "https://your-subdomain.okta.com/oauth2/v1/userinfo"
@@ -63,17 +72,15 @@ In this JSON the following keys will be important, pay attention to its values.
 
 Open the `config.json` file.
 
-Set the **oidc_base_url** to the OIDC as a common base URL (similar to `https://your-subdomain.okta.com/oauth2/v1/`).
-
-The **issuer_url** to the `issuer`.
+Set the **oidc_base_url** to the OIDC common base URL (similar to `https://your-subdomain.okta.com/oauth2/v1/`).
 
 Set **auth_url** to the part following the base URL in `authorization_endpoint`.
 
-Set  **token_url** to the part following the base URL in `token_endpoint`.
+Set **token_url** to the part following the base URL in `token_endpoint`.
 
 Set **userinfo_url** to the part following the base URL in `userinfo_endpoint`.
 
-Set **token_validation_url** to `null` (validation is performed using the Okta python SDK).
+Set **token_validation_url** to `null`.
 
 Set **client_id** and **client_secret** to its values.
 
@@ -84,7 +91,6 @@ Your final result should look like this.
 ```json
 {
   "oidc_base_url": "https://your-subdomain.okta.com/oauth2/v1/",
-  "issuer_url": "https://your-subdomain.okta.com",
   "auth_url": "authorize",
   "token_url": "token",
   "token_validation_url": null,
@@ -112,4 +118,4 @@ Your final result should look like this.
 ## Contact & Support
 
 
-For more information, support and trial licenses please [contact us](mailto:support@yoonik.me) or join us at our [discord community](https://discord.gg/SqHVQUFNtN).
+For more information, support and trial licenses please [contact us](mailto:support@yoonik.me) or join us at our [discord community](https://discord.gg/SqHVQUFNtN).
