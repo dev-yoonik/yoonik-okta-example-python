@@ -12,7 +12,7 @@ from yk_utils.apis import FaceAuthentication
 from utils.config import Configuration
 from services.providers import OktaProvider, OneLoginProvider
 from utils.forms import FaceAuthenticationForm
-from services.user_service import User
+from data_model.user import User
 
 global YK_FACE_AUTHENTICATION, PROVIDER
 
