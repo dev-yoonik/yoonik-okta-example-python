@@ -1,10 +1,10 @@
-# Flask + Okta Hosted Login + YooniK Face Authentication Example
+# Flask + Okta Hosted Login + Youverse Face Authentication Example
 
 This example shows you how to use Flask to log in to your application with an Okta Hosted Login page.
 
-The login is achieved through the [authorization code flow](https://developer.okta.com/authentication-guide/implementing-authentication/auth-code), where the user is redirected to the Okta-Hosted login page. After the user authenticates, he is redirected back to the application with an access code that is then exchanged for an access token. Then he will perform a second-factor face authentication with YooniK.
+The login is achieved through the [authorization code flow](https://developer.okta.com/authentication-guide/implementing-authentication/auth-code), where the user is redirected to the Okta-Hosted login page. After the user authenticates, he is redirected back to the application with an access code that is then exchanged for an access token. Then he will perform a second-factor face authentication with Youverse.
 
-After a successful face authentication, the user is logged in to the application (the user is enrolled in YooniK APIs in the first face authentication).
+After a successful face authentication, the user is logged in to the application (the user is enrolled in Youverse APIs in the first face authentication).
 
 The source code of this example is based on the [Flask Sample Applications for Okta](https://github.com/okta/samples-python-flask) repository. 
 > Requires Python version 3.6.0 or higher.
@@ -14,8 +14,8 @@ The source code of this example is based on the [Flask Sample Applications for O
 Before running this sample, you will need the following:
 
 * An Okta Account.
-* YooniK app integration installed in your Okta instance (can be installed from the **App Catalog**).
-* An YooniK account. If you do not already have one, you can signup [here](https://www.yoonik.me/register). To get a free trial please e-mail us to [support@yoonik.me](mailto:support@yoonik.me).
+* Youverse app integration installed in your Okta instance (can be installed from the **App Catalog**).
+* An Youverse account. If you do not already have one, you can signup [here](https://www.youverse.id/register). To get a free trial please e-mail us to [support@youverse.id](mailto:support@youverse.id).
 
 ## Running This Example
 
@@ -40,10 +40,10 @@ cp client_secrets.json.dist client_secrets.json
 
 You now need to gather the following information from the Okta Admin Console:
 
-* **Client ID** and **Client Secret** - These can be found on the **Sign On** tab of the YooniK app integration that you installed earlier in the Okta Admin Console. 
+* **Client ID** and **Client Secret** - These can be found on the **Sign On** tab of the Youverse app integration that you installed earlier in the Okta Admin Console. 
 * **Open ID Connect URLs** - These are the **authorization_endpoint**, **token_endpoint** and **userinfo_endpoint** for your Okta domain that can be found by clicking on **OpenID Provider Metadata** link under the **Sign On** tab.
 
-Additionally, you need to gather the **YooniK API URL** and **YooniK API key** from your YooniK account dashboard.
+Additionally, you need to gather the **Youverse API URL** and **Youverse API key** from your Youverse account dashboard.
 
 Fill in the information that you gathered in the `client_secrets.json` file.
 
@@ -55,8 +55,8 @@ Fill in the information that you gathered in the `client_secrets.json` file.
   "redirect_uri": "http://127.0.0.1:8080/authorization-code/callback",
   "token_endpoint": "https://{{yourOktaDomain}}/oauth2/v1/token",
   "userinfo_endpoint": "https://{{yourOktaDomain}}/oauth2/v1/userinfo",
-  "yoonik_authentication_api_url": "{{yoonikApiUrl}}",
-  "yoonik_authentication_api_key": "{{yoonikApiKey}}"
+  "yoonik_authentication_api_url": "{{providedApiUrl}}",
+  "yoonik_authentication_api_key": "{{providedApiKey}}"
 }
 ```
 
@@ -78,4 +78,4 @@ You can log in with the same account that you created when signing up for your D
 
 ## Contact & Support
 
-For more information, support and trial licenses please [contact us](mailto:support@yoonik.me) or join us at our [discord community](https://discord.gg/SqHVQUFNtN).
+For more information, support and trial licenses please [contact us](mailto:support@youverse.id) or join us at our [discord community](https://discord.gg/SqHVQUFNtN).
